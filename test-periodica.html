@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script>
+			var startX, startY, finishX, finishY, imageStartX, imageStartY, mouseAction = false;
+			function main_function()
+			{
+				$('button').click(
+					function()
+					{
+						var img = new Image();
+						img.src = $('input').val();
+						img.onload = function()
+						{
+							if (img.width >= img.height) 
+							{
+								$('image').attr('width', (img.width * $('rect').attr('height')) / img.height)
+										.attr('height', $('rect').attr('height'));	
+							}
+							else if (img.height > img.width)
+							{
+								$('image').attr('height', (img.height * $('rect').attr('width')) / img.width)
+										.attr('width', $('rect').attr('width'));	
+							}
+							$('image').attr('x', $('rect').attr('x'))
+									.attr('y', $('rect').attr('y'))
+									.attr('xlink:href', $('input').val());
+						}
+					}
+				);
+				
+				$('image').mousedown(
+					function(event)
+					{
+						mouseAction = true;
+						startX = event.pageX;
+					    startY = event.pageY;
+					    imageStartX = parseInt($('image').attr('x'));
+					    imageStartY = parseInt($('image').attr('y'));  
+					}
+				);
+				
+				$(document).click(
+					function()
+					{
+						mouseAction = false;	
+					}
+				);
+				
+				function move_picture(dimension, coordinate, start, imageStart)
+				{
+					var page = (coordinate == 'x') ? 'pageX': 'pageY';
+					var limit = $('rect').attr(coordinate) - ($('image').attr(dimension) - $('rect').attr(dimension));
+					
+					if (start >= event[page])
+					{
+						finish = imageStart - (start - event[page]);
+						$('image').attr(coordinate, (finish <= limit) ? limit : finish);
+						
+					}
+					else if (start < event[page])
+					{
+						finish = imageStart + (event[page] - start);
+						if (finish >= $('rect').attr(coordinate))
+						{
+							$('image').attr(coordinate, $('rect').attr(coordinate));
+						}
+						else
+						{
+							$('image').attr(coordinate, finish);
+						}	
+					}
+				}
+				
+				$(document).mousemove(
+					function(event)
+					{
+						if (mouseAction)
+						{ 
+							if ($('image').attr('width') > $('image').attr('height'))
+							{
+								move_picture('width', 'x', startX, imageStartX);
+							}
+							else if ($('image').attr('height') > $('image').attr('width'))
+							{
+								move_picture('height', 'y', startY, imageStartY);
+							}
+								
+						}						
+					}
+				);
+			}
+			$(document).ready(main_function);
+		</script>
+		
+		<style type="text/css">
+			input {
+				width: 95%;
+			}
+			svg {
+				margin-top: 10px;
+				border: 1px solid #000000;
+			}
+  		</style>
+	</head>
+	<body>
+		<input value="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1952&q=80">
+		<button>ОК</button>
+		<svg width="584" height="584" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewport-fill="white">
+			<defs>
+			  <clipPath id="image-clip-path">
+			    <rect x="178" y="178" width="228" height="228"/>
+			  </clipPath>
+			</defs> 
+			<image clip-path="url(#image-clip-path)" id="image" x="178" y="178" width="228" height="228" xlink:href="https://s3.eu-central-1.amazonaws.com/periodica-main/public/photo_dpi72.jpg" preserveAspectRatio="xMidYMid slice"/>
+		</svg>
+		
+	</body>
+	
+</html>
